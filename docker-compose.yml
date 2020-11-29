@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+  app:
+    container_name: app
+    tty: true
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    volumes:
+      - ./:/app
+    ports:
+      - 1598:8080
+    env_file: .env
+    environment:
+      DATABASE_SERVER: ${DATABASE_SERVER}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+
+volumes:
+    database:
+      driver: local
