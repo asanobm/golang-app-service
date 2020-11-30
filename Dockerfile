@@ -1,13 +1,15 @@
 # BUILDER
 FROM golang:1.15-alpine AS builder
-ENV GOPATH=
-WORKDIR /go/src/app
-COPY . .
-RUN go get -d -v ./...
-RUN go build -o main​
-# RUNNING
-FROM debian:buster
-RUN mkdir /app
-COPY --from=builder /go/src/app/main /app/main
-WORKDIR /app/
-CMD ["/app/main"]
+ENV GO111MODULE=on \
+  CGO_ENABLED=0 \
+  GOOS=linux \
+  GOARCH=amd64
+WORKDIR /build
+COPY go.mod go.sum main.go ./
+RUN go mod download
+RUN go build -o main .
+WORKDIR /dist
+RUN cp /build/main .
+FROM scratch
+COPY --from=builder /dist/main .
+ENTRYPOINT ["/main"]
